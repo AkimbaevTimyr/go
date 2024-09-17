@@ -1,11 +1,15 @@
 package models
 
-import "gorm.io/gorm"
+import (
+	"time"
+
+	"gorm.io/gorm"
+)
 
 type User struct {
 	gorm.Model
-	Id       int
-	Email    string
-	Name     string
-	Password string
+	Email           string    `gorm:"unique; not null"`
+	Name            string    `gorm:"not null"`
+	Password        string    `gorm:"not null"`
+	EmailVerifiedAt time.Time `gorm:"default:null"`
 }

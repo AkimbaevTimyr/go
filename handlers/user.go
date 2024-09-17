@@ -3,48 +3,11 @@ package handlers
 import (
 	"akimbaev/database"
 	"akimbaev/models"
+	"akimbaev/resources"
 	"akimbaev/response"
 	"encoding/json"
-	"fmt"
 	"net/http"
-
-	"golang.org/x/crypto/bcrypt"
 )
-
-func CreateUser(w http.ResponseWriter, r *http.Request) {
-	type params struct {
-		Name     string `json:"name"`
-		Email    string `json:"email"`
-		Password string `json:"password"`
-	}
-
-	decoder := json.NewDecoder(r.Body)
-
-	p := params{}
-	err := decoder.Decode(&p)
-
-	if err != nil {
-		response.Json(w, http.StatusBadRequest, "Invalid JSON")
-		fmt.Println("Decoding error:", err)
-		return
-	}
-
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(p.Password), bcrypt.DefaultCost)
-
-	if err != nil {
-		response.Json(w, http.StatusInternalServerError, "Error while hashing password")
-	}
-
-	NewUser := models.User{
-		Email:    p.Email,
-		Name:     p.Name,
-		Password: string(hashedPassword),
-	}
-
-	database.DB.Create(&NewUser)
-
-	response.Json(w, http.StatusOK, NewUser)
-}
 
 func DeleteUser(w http.ResponseWriter, r *http.Request) {
 	Id := r.FormValue("id")
@@ -53,11 +16,19 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 
 	if result.Error != nil {
 		response.Json(w, http.StatusInternalServerError, result.Error.Error())
-	} else if result.RowsAffected == 0 {
-		response.Json(w, http.StatusNotFound, "User not found")
-	} else {
-		response.Json(w, http.StatusOK, "User deleted successfully")
+		return
 	}
+
+	if result.RowsAffected == 0 {
+		response.Json(w, http.StatusNotFound, map[string]string{
+			"message": "User not found",
+		})
+	} else {
+		response.Json(w, http.StatusOK, map[string]string{
+			"message": "User deleted successfully",
+		})
+	}
+
 }
 
 func GetUser(w http.ResponseWriter, r *http.Request) {
@@ -72,11 +43,15 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 
 	result := database.DB.First(&User, Id)
 
-	userNotFound(result.Error, w)
+	if result.Error != nil {
+		userNotFound(result.Error, w)
+		return
+	}
 
-	response.Json(w, http.StatusOK, User)
+	response.Json(w, http.StatusOK, resources.UserResource(User))
 }
 
+// TODO Зарефакторить реквест
 func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	type params struct {
 		Name     string `json:"name"`
@@ -111,13 +86,15 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 
 	database.DB.Save(&User)
 
-	response.Json(w, http.StatusOK, User)
+	response.Json(w, http.StatusOK, resources.UserResource(User))
 
 }
 
 func userNotFound(err error, w http.ResponseWriter) {
 	if err != nil {
-		response.Json(w, http.StatusNotFound, "User not found")
+		response.Json(w, http.StatusNotFound, map[string]string{
+			"message": "User not found",
+		})
 		return
 	}
 }

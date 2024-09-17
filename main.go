@@ -2,8 +2,6 @@ package main
 
 import (
 	"akimbaev/database"
-	"akimbaev/handlers"
-	"akimbaev/response"
 	"akimbaev/routes"
 	"log"
 	"net/http"
@@ -20,19 +18,37 @@ func main() {
 	http.ListenAndServe(":8080", api)
 }
 
-func ProtectedHandler(w http.ResponseWriter, r *http.Request) {
-	tokenString := r.Header.Get("Authorization")
+// func CreateUser(w http.ResponseWriter, r *http.Request) {
+// 	type params struct {
+// 		Name     string `json:"name"`
+// 		Email    string `json:"email"`
+// 		Password string `json:"password"`
+// 	}
 
-	response.Json(w, http.StatusUnauthorized, "Invalid token")
+// 	decoder := json.NewDecoder(r.Body)
 
-	tokenString = tokenString[len("Bearer "):]
+// 	p := params{}
+// 	err := decoder.Decode(&p)
 
-	err := handlers.VerifyToken(tokenString)
+// 	if err != nil {
+// 		response.Json(w, http.StatusBadRequest, "Invalid JSON")
+// 		fmt.Println("Decoding error:", err)
+// 		return
+// 	}
 
-	if err != nil {
-		response.Json(w, http.StatusUnauthorized, "Invalid token")
-		return
-	}
+// 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(p.Password), bcrypt.DefaultCost)
 
-	return
-}
+// 	if err != nil {
+// 		response.Json(w, http.StatusInternalServerError, "Error while hashing password")
+// 	}
+
+// 	NewUser := models.User{
+// 		Email:    p.Email,
+// 		Name:     p.Name,
+// 		Password: string(hashedPassword),
+// 	}
+
+// 	database.DB.Create(&NewUser)
+
+// 	response.Json(w, http.StatusOK, NewUser)
+// }

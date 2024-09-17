@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"akimbaev/handlers"
+	"akimbaev/helpers"
 	"akimbaev/response"
 	"net/http"
 )
@@ -13,14 +13,16 @@ func AuthMiddleware(next http.Handler) http.Handler {
 		tokenString = tokenString[len("Bearer "):]
 
 		if tokenString == "" {
-			response.Json(w, http.StatusUnauthorized, "Invalid token")
+			response.Json(w, http.StatusUnauthorized, map[string]string{
+				"message": "Invalid token",
+			})
 			return
 		}
 
-		err := handlers.VerifyToken(tokenString)
-
-		if err != nil {
-			response.Json(w, http.StatusUnauthorized, "Invalid token")
+		if err := helpers.VerifyToken(tokenString); err != nil {
+			response.Json(w, http.StatusUnauthorized, map[string]string{
+				"message": "Invalid token",
+			})
 			return
 		}
 

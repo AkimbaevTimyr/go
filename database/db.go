@@ -20,5 +20,5 @@ func Init() {
 		log.Fatalf("failed to connect database: %v", err)
 	}
 
-	DB.AutoMigrate(&models.User{})
+	DB.AutoMigrate(&models.User{}, &models.VerificationCode{})
 }

@@ -4,7 +4,6 @@ go 1.22.2
 
 require (
 	github.com/golang-jwt/jwt v3.2.2+incompatible
-	github.com/golang-jwt/jwt/v4 v4.5.0
 	golang.org/x/crypto v0.27.0
 	gorm.io/driver/postgres v1.5.9
 	gorm.io/gorm v1.25.12
