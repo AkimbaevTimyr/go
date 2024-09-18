@@ -37,7 +37,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tokenString, err := helpers.CreateToken(User.Email)
+	tokenString, err := helpers.CreateToken(User)
 
 	if err != nil {
 		response.Json(w, http.StatusInternalServerError, "ERROR")
@@ -100,7 +100,7 @@ func CheckCode(w http.ResponseWriter, r *http.Request) {
 
 		clearCodes(User)
 
-		tokenString, _ := helpers.CreateToken(User.Email)
+		tokenString, _ := helpers.CreateToken(User)
 
 		response.Json(w, http.StatusOK, map[string]any{
 			"message": "auth confirmed",

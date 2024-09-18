@@ -42,6 +42,7 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	result := database.DB.First(&User, Id)
+	database.DB.Preload("Orders").First(&User, User.ID)
 
 	if result.Error != nil {
 		userNotFound(result.Error, w)
