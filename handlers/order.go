@@ -20,6 +20,27 @@ func GetOrders(w http.ResponseWriter, r *http.Request) {
 	response.Json(w, http.StatusOK, resources.OrdersResource(orders))
 }
 
+func DeleteOrder(w http.ResponseWriter, r *http.Request) {
+	id := r.FormValue("id")
+
+	result := database.DB.Delete(&models.Order{}, id)
+
+	if result.Error != nil {
+		response.Json(w, http.StatusInternalServerError, result.Error.Error())
+		return
+	}
+
+	if result.RowsAffected == 0 {
+		response.Json(w, http.StatusNotFound, map[string]string{
+			"message": "Order not found",
+		})
+	} else {
+		response.Json(w, http.StatusOK, map[string]string{
+			"message": "Order deleted successfully",
+		})
+	}
+}
+
 func CreateOrder(w http.ResponseWriter, r *http.Request) {
 	userClaims, _ := helpers.ExctractUserFromToken(r)
 

@@ -20,6 +20,8 @@ func Init() {
 		log.Fatalf("failed to connect database: %v", err)
 	}
 
+	//что-то сделать с этим запросом в бд
 	DB.Exec("CREATE TYPE order_status AS ENUM ('rejected', 'approved', 'moderation');")
-	DB.AutoMigrate(&models.User{}, &models.VerificationCode{}, &models.Order{})
+	DB.Exec("CREATE TYPE report_status AS ENUM ('rejected', 'approved', 'moderation');")
+	DB.AutoMigrate(&models.User{}, &models.VerificationCode{}, &models.Order{}, &models.OrderReport{})
 }
