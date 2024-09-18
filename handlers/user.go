@@ -3,6 +3,7 @@ package handlers
 import (
 	"akimbaev/database"
 	"akimbaev/models"
+	"akimbaev/requests"
 	"akimbaev/resources"
 	"akimbaev/response"
 	"encoding/json"
@@ -52,18 +53,10 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 	response.Json(w, http.StatusOK, resources.UserResource(User))
 }
 
-// TODO Зарефакторить реквест
 func UpdateUser(w http.ResponseWriter, r *http.Request) {
-	type params struct {
-		Name     string `json:"name"`
-		Email    string `json:"email"`
-		Password string `json:"password"`
-	}
-	decoder := json.NewDecoder(r.Body)
+	var request requests.UpdateUserRequest
 
-	p := params{}
-
-	decoder.Decode(&p)
+	json.NewDecoder(r.Body).Decode(&request)
 
 	Id := r.FormValue("id")
 
@@ -73,16 +66,16 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 
 	userNotFound(result.Error, w)
 
-	if p.Email != "" {
-		User.Email = p.Email
+	if request.Email != "" {
+		User.Email = request.Email
 	}
 
-	if p.Name != "" {
-		User.Name = p.Name
+	if request.Name != "" {
+		User.Name = request.Name
 	}
 
-	if p.Password != "" {
-		User.Password = p.Password
+	if request.Password != "" {
+		User.Password = request.Password
 	}
 
 	database.DB.Save(&User)

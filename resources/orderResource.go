@@ -1,6 +1,9 @@
 package resources
 
-import "akimbaev/models"
+import (
+	"akimbaev/models"
+	"time"
+)
 
 func OrderResource(order models.Order) map[string]any {
 	return map[string]any{
@@ -8,7 +11,19 @@ func OrderResource(order models.Order) map[string]any {
 		"title":      order.Title,
 		"content":    order.Content,
 		"price":      order.Price,
-		"created_at": order.CreatedAt,
-		"updated_at": order.UpdatedAt,
+		"status":     order.Status,
+		"created_at": order.CreatedAt.Format(time.ANSIC),
+		"updated_at": order.UpdatedAt.Format(time.ANSIC),
 	}
+}
+
+func OrdersResource(orders []models.Order) []map[string]any {
+
+	resources := []map[string]any{}
+
+	for _, order := range orders {
+		resources = append(resources, OrderResource(order))
+	}
+
+	return resources
 }

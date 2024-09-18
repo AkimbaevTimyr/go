@@ -20,5 +20,6 @@ func Init() {
 		log.Fatalf("failed to connect database: %v", err)
 	}
 
+	DB.Exec("CREATE TYPE order_status AS ENUM ('rejected', 'approved', 'moderation');")
 	DB.AutoMigrate(&models.User{}, &models.VerificationCode{}, &models.Order{})
 }
