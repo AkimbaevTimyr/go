@@ -11,11 +11,12 @@ type UserService interface {
 	DeleteUser(id int) error
 	UpdateUser(id int, request requests.UpdateUserRequest) (*models.User, error)
 }
+
 type userService struct {
 	repo repository.UserRepository
 }
 
-func NewUserService(repo repository.UserRepository) *userService {
+func NewUserService(repo repository.UserRepository) UserService {
 	return &userService{
 		repo: repo,
 	}

@@ -1,20 +1,16 @@
 package routes
 
 import (
-	"akimbaev/controller"
 	"akimbaev/handlers"
+	"akimbaev/injection"
 	"akimbaev/middleware"
-	"akimbaev/repository"
-	"akimbaev/service"
 	"net/http"
 )
 
 func UserMux() http.Handler {
 	userMux := http.NewServeMux()
 
-	userRepo := repository.NewUserRepository()
-	userService := service.NewUserService(userRepo)
-	userController := controller.NewUserController(userService)
+	userController := injection.InitUserController()
 
 	userMux.Handle("/get", middleware.AuthMiddleware(http.HandlerFunc(userController.GetUser)))
 	userMux.Handle("/delete", middleware.AuthMiddleware(http.HandlerFunc(userController.DeleteUser)))
