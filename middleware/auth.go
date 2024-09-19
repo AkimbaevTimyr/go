@@ -10,6 +10,7 @@ func AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		tokenString := r.Header.Get("Authorization")
 
+		//TODO если токен не передан ошибка
 		tokenString = tokenString[len("Bearer "):]
 
 		if tokenString == "" {

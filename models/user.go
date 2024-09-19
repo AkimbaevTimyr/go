@@ -12,6 +12,7 @@ type User struct {
 	Email           string    `gorm:"unique; not null"`
 	Name            string    `gorm:"not null"`
 	Password        string    `gorm:"not null"`
+	Balance         float64   `gorm:"not null;default:0"`
 	EmailVerifiedAt time.Time `gorm:"default:null"`
 	Orders          []Order
 }

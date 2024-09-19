@@ -59,3 +59,32 @@ func CreateOrder(w http.ResponseWriter, r *http.Request) {
 
 	response.Json(w, http.StatusOK, resources.OrderResource(NewOrder))
 }
+
+func ChangeStatus(w http.ResponseWriter, r *http.Request) {
+	// userClaims, _ := helpers.ExctractUserFromToken(r)
+	//TODO проверка на роль юсера и кто можем менять статус заказа
+
+	var order models.Order
+
+	orderId := r.FormValue("id")
+	status := r.FormValue("status")
+
+	if err := database.DB.First(&order, orderId).Error; err != nil {
+		response.Json(w, http.StatusNotFound, map[string]any{
+			"message": "Order not found",
+		})
+		return
+	}
+
+	order.Status = models.StatusMap[status]
+
+	if err := database.DB.Save(&order).Error; err != nil {
+		response.Json(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	response.Json(w, http.StatusOK, map[string]any{
+		"message": "status changed",
+	})
+
+}

@@ -12,6 +12,12 @@ const (
 	MODERATE Status = "moderation"
 )
 
+var StatusMap = map[string]Status{
+	"rejected":   REJECTED,
+	"approved":   APPROVED,
+	"moderation": MODERATE,
+}
+
 type Order struct {
 	gorm.Model
 	Title   string  `gorm:"not null"`
