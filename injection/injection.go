@@ -12,3 +12,10 @@ func InitUserController() *controller.UserController {
 	userController := controller.NewUserController(userService)
 	return userController
 }
+
+func InitOrderReportController() *controller.UserReportController {
+	repository := repository.NewOrderReportRepository()
+	service := service.NewOrderReportService(repository)
+	controller := controller.NewUserReportController(service)
+	return controller
+}

@@ -1,14 +1,16 @@
 package routes
 
 import (
-	"akimbaev/handlers"
+	"akimbaev/injection"
 	"akimbaev/middleware"
 	"net/http"
 )
 
 func OrderReportMux() http.Handler {
 	orderReportMux := http.NewServeMux()
-	orderReportMux.Handle("/connect", middleware.AuthMiddleware(http.HandlerFunc(handlers.Connect)))
+
+	orderReportController := injection.InitOrderReportController()
+	orderReportMux.Handle("/connect", middleware.AuthMiddleware(http.HandlerFunc(orderReportController.Connect)))
 
 	return orderReportMux
 }

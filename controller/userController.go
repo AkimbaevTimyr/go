@@ -32,7 +32,7 @@ func (c *UserController) GetUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response.Json(w, http.StatusOK, resources.UserResourc(user))
+	response.Json(w, http.StatusOK, resources.UserResource(user))
 }
 
 func (c *UserController) DeleteUser(w http.ResponseWriter, r *http.Request) {
@@ -66,5 +66,5 @@ func (c *UserController) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response.Json(w, http.StatusOK, resources.UserResourc(user))
+	response.Json(w, http.StatusOK, resources.UserResource(user))
 }
