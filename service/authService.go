@@ -1,62 +1,61 @@
-package handlers
+package service
 
 import (
 	"akimbaev/database"
 	"akimbaev/helpers"
 	"akimbaev/models"
 	"akimbaev/requests"
-	"akimbaev/resources"
-	"akimbaev/response"
-	"encoding/json"
 	"errors"
-	"math/rand"
-	"net/http"
+	"fmt"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
+	"golang.org/x/exp/rand"
 	"gorm.io/gorm"
 )
 
-func Login(w http.ResponseWriter, r *http.Request) {
-	request := requests.LoginRequest{}
-	json.NewDecoder(r.Body).Decode(&request)
+type AuthService interface {
+	Login(request requests.LoginRequest) (string, error)
+	Register(request requests.RegisterRequest) (*models.User, error)
+	CheckCode(requests.CheckCodeRequest) (string, error)
+}
 
+type authService struct {
+}
+
+func NewAuthService() AuthService {
+	return &authService{}
+}
+
+func (s *authService) Login(request requests.LoginRequest) (string, error) {
 	User := models.User{}
 
 	result := database.DB.First(&User, "email = ?", request.Email)
 
 	if result.Error != nil {
-		response.Json(w, http.StatusNotFound, "User not found")
-		return
+		return "", fmt.Errorf("user with email %s not found", request.Email)
 	}
 
 	err := bcrypt.CompareHashAndPassword([]byte(User.Password), []byte(request.Password))
 
 	if err != nil {
-		response.Json(w, http.StatusUnauthorized, "Invalid password")
-		return
+		return "", fmt.Errorf("invalid password")
 	}
 
 	tokenString, err := helpers.CreateToken(User)
 
 	if err != nil {
-		response.Json(w, http.StatusInternalServerError, "ERROR")
+		return "", fmt.Errorf("ERROR")
 	}
 
-	response.Json(w, http.StatusOK, map[string]interface{}{
-		"token": tokenString,
-	})
+	return tokenString, nil
 }
 
-func Register(w http.ResponseWriter, r *http.Request) {
-	request := requests.RegisterRequest{}
-
-	json.NewDecoder(r.Body).Decode(&request)
-
+func (s *authService) Register(request requests.RegisterRequest) (*models.User, error) {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(request.Password), bcrypt.DefaultCost)
 
 	if err != nil {
-		response.Json(w, http.StatusInternalServerError, "Error while hashing password")
+		return nil, fmt.Errorf("error while hashing password")
 	}
 
 	NewUser := models.User{
@@ -67,28 +66,18 @@ func Register(w http.ResponseWriter, r *http.Request) {
 
 	database.DB.Create(&NewUser)
 
-	response.Json(w, http.StatusOK, resources.UserResource(NewUser))
-
 	generateCode(NewUser)
+	return &NewUser, nil
 
 	//логика по отправке кода юсеру на почту после регистрации
 }
 
-func CheckCode(w http.ResponseWriter, r *http.Request) {
-	type params struct {
-		Email string `json:"email"`
-		Code  int    `json:"code"`
-	}
-
-	request := params{}
-
-	json.NewDecoder(r.Body).Decode(&request)
-
+func (s *authService) CheckCode(request requests.CheckCodeRequest) (string, error) {
 	var code models.VerificationCode
 
 	if err := database.DB.Where("email = ?", request.Email).Where("code = ?", request.Code).First(&code).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			response.Json(w, http.StatusNotFound, "Incorrect code")
+			return "", fmt.Errorf("incorrect code")
 		}
 	} else {
 		User := models.User{}
@@ -102,11 +91,9 @@ func CheckCode(w http.ResponseWriter, r *http.Request) {
 
 		tokenString, _ := helpers.CreateToken(User)
 
-		response.Json(w, http.StatusOK, map[string]any{
-			"message": "auth confirmed",
-			"token":   tokenString,
-		})
+		return tokenString, nil
 	}
+	return "", fmt.Errorf("ERROR")
 }
 
 func generateCode(user models.User) int {

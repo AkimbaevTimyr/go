@@ -19,3 +19,9 @@ func InitOrderReportController() *controller.UserReportController {
 	controller := controller.NewUserReportController(service)
 	return controller
 }
+
+func InitAuthController() *controller.AuthController {
+	service := service.NewAuthService()
+	controller := controller.NewAuthController(service)
+	return controller
+}
