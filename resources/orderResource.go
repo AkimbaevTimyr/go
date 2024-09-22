@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-func OrderResource(order models.Order) map[string]any {
+func OrderResource(order *models.Order) map[string]any {
 	return map[string]any{
 		"id":         order.ID,
 		"title":      order.Title,
@@ -17,12 +17,12 @@ func OrderResource(order models.Order) map[string]any {
 	}
 }
 
-func OrdersResource(orders []models.Order) []map[string]any {
+func OrdersResource(orders *[]models.Order) []map[string]any {
 
 	resources := []map[string]any{}
 
-	for _, order := range orders {
-		resources = append(resources, OrderResource(order))
+	for _, order := range *orders {
+		resources = append(resources, OrderResource(&order))
 	}
 
 	return resources

@@ -79,21 +79,19 @@ func (s *authService) CheckCode(request requests.CheckCodeRequest) (string, erro
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return "", fmt.Errorf("incorrect code")
 		}
-	} else {
-		User := models.User{}
-
-		database.DB.Where("email = ?", request.Email).First(&User)
-
-		User.EmailVerifiedAt = time.Now()
-		database.DB.Save(&User)
-
-		clearCodes(User)
-
-		tokenString, _ := helpers.CreateToken(User)
-
-		return tokenString, nil
 	}
-	return "", fmt.Errorf("ERROR")
+	User := models.User{}
+
+	database.DB.Where("email = ?", request.Email).First(&User)
+
+	User.EmailVerifiedAt = time.Now()
+	database.DB.Save(&User)
+
+	clearCodes(User)
+
+	tokenString, _ := helpers.CreateToken(User)
+
+	return tokenString, nil
 }
 
 func generateCode(user models.User) int {

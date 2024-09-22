@@ -9,7 +9,7 @@ func UserResourc(user models.User) map[string]any {
 	orders := []map[string]any{}
 
 	for _, order := range user.Orders {
-		orders = append(orders, OrderResource(order))
+		orders = append(orders, OrderResource(&order))
 	}
 
 	return map[string]any{
@@ -28,7 +28,7 @@ func UserResource(user *models.User) map[string]any {
 	orders := []map[string]any{}
 
 	for _, order := range user.Orders {
-		orders = append(orders, OrderResource(order))
+		orders = append(orders, OrderResource(&order))
 	}
 
 	return map[string]any{

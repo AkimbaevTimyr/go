@@ -25,3 +25,10 @@ func InitAuthController() *controller.AuthController {
 	controller := controller.NewAuthController(service)
 	return controller
 }
+
+func InitOrderController() *controller.OrderController {
+	repository := repository.NewOrderRepository()
+	service := service.NewOrderService(repository)
+	controller := controller.NewOrderController(service)
+	return controller
+}
