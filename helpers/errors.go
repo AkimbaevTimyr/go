@@ -8,13 +8,15 @@ import (
 type errorCode string
 
 const (
-	ENOTFOUND errorCode = "not_found"
-	EINTERNAL errorCode = "internal server error"
+	ENOTFOUND    errorCode = "not_found"
+	EINTERNAL    errorCode = "internal server error"
+	UNAUTHORIZED errorCode = "unauthorized"
 )
 
 var codeToHTTPStatusMap = map[errorCode]int{
-	ENOTFOUND: http.StatusNotFound,
-	EINTERNAL: http.StatusInternalServerError,
+	ENOTFOUND:    http.StatusNotFound,
+	EINTERNAL:    http.StatusInternalServerError,
+	UNAUTHORIZED: http.StatusUnauthorized,
 }
 
 type Error struct {

@@ -26,7 +26,7 @@ func (c *AuthController) Login(w http.ResponseWriter, r *http.Request) {
 	tokenString, err := c.service.Login(request)
 
 	if err != nil {
-		response.Json(w, http.StatusNotFound, err.Error())
+		response.Json(w, err.HTTPStatus(), err.Details())
 	}
 
 	response.Json(w, http.StatusOK, map[string]interface{}{
@@ -42,7 +42,7 @@ func (c *AuthController) Register(w http.ResponseWriter, r *http.Request) {
 	user, err := c.service.Register(request)
 
 	if err != nil {
-		response.Json(w, http.StatusNotFound, err.Error())
+		response.Json(w, err.HTTPStatus(), err.Details())
 	}
 
 	response.Json(w, http.StatusOK, user)
@@ -56,7 +56,7 @@ func (c *AuthController) CheckCode(w http.ResponseWriter, r *http.Request) {
 	tokenString, err := c.service.CheckCode(request)
 
 	if err != nil {
-		response.Json(w, http.StatusNotFound, err.Error())
+		response.Json(w, err.HTTPStatus(), err.Details())
 	}
 
 	response.Json(w, http.StatusOK, map[string]any{

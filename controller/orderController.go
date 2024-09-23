@@ -37,9 +37,7 @@ func (c *OrderController) GetOrders(w http.ResponseWriter, r *http.Request) {
 	orders, err := c.service.GetOrders(int(userClaims.UserID), params)
 
 	if err != nil {
-		response.Json(w, http.StatusNotFound, map[string]any{
-			"message": err.Error(),
-		})
+		response.Json(w, err.HTTPStatus(), err.Details())
 		return
 	}
 
@@ -56,9 +54,7 @@ func (c *OrderController) CreateOrder(w http.ResponseWriter, r *http.Request) {
 	order, err := c.service.CreateOrder(int(userClaims.UserID), request)
 
 	if err != nil {
-		response.Json(w, http.StatusNotFound, map[string]any{
-			"message": err.Error(),
-		})
+		response.Json(w, err.HTTPStatus(), err.Details())
 		return
 	}
 
@@ -72,9 +68,7 @@ func (c *OrderController) ChangeStatus(w http.ResponseWriter, r *http.Request) {
 	err := c.service.ChangeStatus(orderId, status)
 
 	if err != nil {
-		response.Json(w, http.StatusNotFound, map[string]any{
-			"message": err.Error(),
-		})
+		response.Json(w, err.HTTPStatus(), err.Details())
 	}
 	response.Json(w, http.StatusOK, map[string]any{
 		"message": "status changed",
@@ -87,9 +81,7 @@ func (c *OrderController) Delete(w http.ResponseWriter, r *http.Request) {
 	err := c.service.Delete(id)
 
 	if err != nil {
-		response.Json(w, http.StatusNotFound, map[string]string{
-			"message": err.Error(),
-		})
+		response.Json(w, err.HTTPStatus(), err.Details())
 		return
 	}
 

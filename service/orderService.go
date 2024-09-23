@@ -2,6 +2,7 @@ package service
 
 import (
 	"akimbaev/database"
+	"akimbaev/helpers"
 	"akimbaev/models"
 	"akimbaev/repository"
 	"akimbaev/requests"
@@ -9,10 +10,10 @@ import (
 )
 
 type OrderService interface {
-	GetOrders(id int, params order.IndexRequest) (*[]models.Order, error)
-	CreateOrder(id int, request requests.OrderRequest) (*models.Order, error)
-	ChangeStatus(id int, status string) error
-	Delete(id int) error
+	GetOrders(id int, params order.IndexRequest) (*[]models.Order, *helpers.Error)
+	CreateOrder(id int, request requests.OrderRequest) (*models.Order, *helpers.Error)
+	ChangeStatus(id int, status string) *helpers.Error
+	Delete(id int) *helpers.Error
 }
 
 type orderService struct {
@@ -25,7 +26,7 @@ func NewOrderService(repo repository.OrderRepository) OrderService {
 	}
 }
 
-func (s *orderService) GetOrders(id int, params order.IndexRequest) (*[]models.Order, error) {
+func (s *orderService) GetOrders(id int, params order.IndexRequest) (*[]models.Order, *helpers.Error) {
 
 	orders, err := s.repo.GetUserOrders(id, params)
 
@@ -36,7 +37,7 @@ func (s *orderService) GetOrders(id int, params order.IndexRequest) (*[]models.O
 	return orders, nil
 }
 
-func (s *orderService) CreateOrder(id int, request requests.OrderRequest) (*models.Order, error) {
+func (s *orderService) CreateOrder(id int, request requests.OrderRequest) (*models.Order, *helpers.Error) {
 
 	order, err := s.repo.CreateOrder(id, request)
 
@@ -48,7 +49,7 @@ func (s *orderService) CreateOrder(id int, request requests.OrderRequest) (*mode
 
 }
 
-func (s *orderService) ChangeStatus(id int, status string) error {
+func (s *orderService) ChangeStatus(id int, status string) *helpers.Error {
 	order, err := s.repo.GetById(id)
 
 	if err != nil {
@@ -64,7 +65,7 @@ func (s *orderService) ChangeStatus(id int, status string) error {
 	return nil
 }
 
-func (s *orderService) Delete(id int) error {
+func (s *orderService) Delete(id int) *helpers.Error {
 
 	err := s.repo.DeleteById(id)
 

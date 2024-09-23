@@ -15,9 +15,9 @@ import (
 )
 
 type AuthService interface {
-	Login(request requests.LoginRequest) (string, error)
-	Register(request requests.RegisterRequest) (*models.User, error)
-	CheckCode(requests.CheckCodeRequest) (string, error)
+	Login(request requests.LoginRequest) (string, *helpers.Error)
+	Register(request requests.RegisterRequest) (*models.User, *helpers.Error)
+	CheckCode(requests.CheckCodeRequest) (string, *helpers.Error)
 }
 
 type authService struct {
@@ -27,35 +27,35 @@ func NewAuthService() AuthService {
 	return &authService{}
 }
 
-func (s *authService) Login(request requests.LoginRequest) (string, error) {
+func (s *authService) Login(request requests.LoginRequest) (string, *helpers.Error) {
 	User := models.User{}
 
 	result := database.DB.First(&User, "email = ?", request.Email)
 
 	if result.Error != nil {
-		return "", fmt.Errorf("user with email %s not found", request.Email)
+		return "", &helpers.Error{Code: helpers.ENOTFOUND, Message: fmt.Sprintf("user with email %s not found", request.Email)}
 	}
 
 	err := bcrypt.CompareHashAndPassword([]byte(User.Password), []byte(request.Password))
 
 	if err != nil {
-		return "", fmt.Errorf("invalid password")
+		return "", &helpers.Error{Code: helpers.UNAUTHORIZED, Message: "invalid password"}
 	}
 
 	tokenString, err := helpers.CreateToken(User)
 
 	if err != nil {
-		return "", fmt.Errorf("ERROR")
+		return "", &helpers.Error{Code: helpers.EINTERNAL, Message: "internal server error"}
 	}
 
 	return tokenString, nil
 }
 
-func (s *authService) Register(request requests.RegisterRequest) (*models.User, error) {
+func (s *authService) Register(request requests.RegisterRequest) (*models.User, *helpers.Error) {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(request.Password), bcrypt.DefaultCost)
 
 	if err != nil {
-		return nil, fmt.Errorf("error while hashing password")
+		return nil, &helpers.Error{Code: helpers.EINTERNAL, Message: "error while hashing password"}
 	}
 
 	NewUser := models.User{
@@ -72,12 +72,12 @@ func (s *authService) Register(request requests.RegisterRequest) (*models.User, 
 	//логика по отправке кода юсеру на почту после регистрации
 }
 
-func (s *authService) CheckCode(request requests.CheckCodeRequest) (string, error) {
+func (s *authService) CheckCode(request requests.CheckCodeRequest) (string, *helpers.Error) {
 	var code models.VerificationCode
 
 	if err := database.DB.Where("email = ?", request.Email).Where("code = ?", request.Code).First(&code).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return "", fmt.Errorf("incorrect code")
+			return "", &helpers.Error{Code: helpers.UNAUTHORIZED, Message: "incorrect code"}
 		}
 	}
 	User := models.User{}

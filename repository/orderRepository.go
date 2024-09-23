@@ -2,6 +2,7 @@ package repository
 
 import (
 	"akimbaev/database"
+	"akimbaev/helpers"
 	"akimbaev/models"
 	"akimbaev/requests"
 	"akimbaev/requests/order"
@@ -11,10 +12,10 @@ import (
 )
 
 type OrderRepository interface {
-	GetUserOrders(id int, params order.IndexRequest) (*[]models.Order, error)
-	CreateOrder(id int, request requests.OrderRequest) (*models.Order, error)
-	GetById(id int) (*models.Order, error)
-	DeleteById(id int) error
+	GetUserOrders(id int, params order.IndexRequest) (*[]models.Order, *helpers.Error)
+	CreateOrder(id int, request requests.OrderRequest) (*models.Order, *helpers.Error)
+	GetById(id int) (*models.Order, *helpers.Error)
+	DeleteById(id int) *helpers.Error
 }
 
 type orderRepo struct{}
@@ -23,7 +24,7 @@ func NewOrderRepository() OrderRepository {
 	return &orderRepo{}
 }
 
-func (r *orderRepo) GetUserOrders(id int, params order.IndexRequest) (*[]models.Order, error) {
+func (r *orderRepo) GetUserOrders(id int, params order.IndexRequest) (*[]models.Order, *helpers.Error) {
 
 	var orders []models.Order
 
@@ -34,7 +35,7 @@ func (r *orderRepo) GetUserOrders(id int, params order.IndexRequest) (*[]models.
 	return &orders, nil
 }
 
-func (r *orderRepo) CreateOrder(id int, request requests.OrderRequest) (*models.Order, error) {
+func (r *orderRepo) CreateOrder(id int, request requests.OrderRequest) (*models.Order, *helpers.Error) {
 
 	NewOrder := models.Order{
 		Title:   request.Title,
@@ -44,34 +45,31 @@ func (r *orderRepo) CreateOrder(id int, request requests.OrderRequest) (*models.
 	}
 
 	if err := database.DB.Create(&NewOrder).Error; err != nil {
-		return nil, fmt.Errorf("something where wrong: %v", err.Error())
+		return nil, &helpers.Error{Code: helpers.EINTERNAL, Message: "interval server error"}
+
 	}
 
 	return &NewOrder, nil
 }
 
-func (r *orderRepo) GetById(id int) (*models.Order, error) {
+func (r *orderRepo) GetById(id int) (*models.Order, *helpers.Error) {
 	var order models.Order
 
 	if err := database.DB.First(&order, id).Error; err != nil {
-		return nil, fmt.Errorf("order with id %d not found", id)
+		return nil, &helpers.Error{Code: helpers.ENOTFOUND, Message: fmt.Sprintf("order with id %d not found", id)}
 	}
 	return &order, nil
 }
 
-func (r *orderRepo) DeleteById(id int) error {
-	if err := database.DB.Delete(&models.Order{}, id).Error; err != nil {
-		return fmt.Errorf("order with id %d not found", id)
-	}
-
+func (r *orderRepo) DeleteById(id int) *helpers.Error {
 	result := database.DB.Delete(&models.Order{}, id)
 
 	if result.Error != nil {
-		return fmt.Errorf("internal server error")
+		return &helpers.Error{Code: helpers.EINTERNAL, Message: "interval server error"}
 	}
 
 	if result.RowsAffected == 0 {
-		return fmt.Errorf("order with id %d not found", id)
+		return &helpers.Error{Code: helpers.ENOTFOUND, Message: fmt.Sprintf("order with id %d not found", id)}
 	}
 	return nil
 }

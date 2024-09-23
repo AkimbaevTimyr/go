@@ -27,9 +27,7 @@ func (s *UserReportController) Connect(w http.ResponseWriter, r *http.Request) {
 	report, err := s.service.Connect(orderId, userClaims.UserID)
 
 	if err != nil {
-		response.Json(w, http.StatusNotFound, map[string]any{
-			"message": err.Error(),
-		})
+		response.Json(w, err.HTTPStatus(), err.Details())
 		return
 	}
 

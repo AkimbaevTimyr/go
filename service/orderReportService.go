@@ -2,12 +2,13 @@ package service
 
 import (
 	"akimbaev/database"
+	"akimbaev/helpers"
 	"akimbaev/models"
 	"akimbaev/repository"
 )
 
 type OrderReportService interface {
-	Connect(id int, userId uint) (*models.OrderReport, error)
+	Connect(id int, userId uint) (*models.OrderReport, *helpers.Error)
 }
 
 type orderReportService struct {
@@ -23,7 +24,7 @@ func NewOrderReportService(repo repository.OrderReportRepository, orderRepo repo
 }
 
 // проверить
-func (s *orderReportService) Connect(id int, userId uint) (*models.OrderReport, error) {
+func (s *orderReportService) Connect(id int, userId uint) (*models.OrderReport, *helpers.Error) {
 
 	order, err := s.orderRepo.GetById(id)
 
@@ -41,9 +42,7 @@ func (s *orderReportService) Connect(id int, userId uint) (*models.OrderReport, 
 	database.DB.Preload("User").First(&order, order.ID)
 
 	order.User.Balance -= order.Price
-	if err := database.DB.Save(&order.User).Error; err != nil {
-		return nil, err
-	}
+	database.DB.Save(&order.User)
 
 	database.DB.Preload("Order").Find(&report, report.ID)
 
