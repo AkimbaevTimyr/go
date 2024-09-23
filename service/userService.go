@@ -1,15 +1,16 @@
 package service
 
 import (
+	"akimbaev/helpers"
 	"akimbaev/models"
 	"akimbaev/repository"
 	"akimbaev/requests"
 )
 
 type UserService interface {
-	GetUser(id int) (*models.User, error)
-	DeleteUser(id int) error
-	UpdateUser(id int, request requests.UpdateUserRequest) (*models.User, error)
+	GetUser(id int) (*models.User, *helpers.Error)
+	DeleteUser(id int) *helpers.Error
+	UpdateUser(id int, request requests.UpdateUserRequest) (*models.User, *helpers.Error)
 }
 
 type userService struct {
@@ -22,7 +23,7 @@ func NewUserService(repo repository.UserRepository) UserService {
 	}
 }
 
-func (s *userService) GetUser(id int) (*models.User, error) {
+func (s *userService) GetUser(id int) (*models.User, *helpers.Error) {
 	user, err := s.repo.GetUserById(id)
 
 	if err != nil {
@@ -32,7 +33,7 @@ func (s *userService) GetUser(id int) (*models.User, error) {
 	return user, nil
 }
 
-func (s *userService) DeleteUser(id int) error {
+func (s *userService) DeleteUser(id int) *helpers.Error {
 	err := s.repo.DeleteUserById(id)
 
 	if err != nil {
@@ -42,7 +43,7 @@ func (s *userService) DeleteUser(id int) error {
 	return nil
 }
 
-func (s *userService) UpdateUser(id int, request requests.UpdateUserRequest) (*models.User, error) {
+func (s *userService) UpdateUser(id int, request requests.UpdateUserRequest) (*models.User, *helpers.Error) {
 	user, err := s.repo.UpdateUser(id, request)
 
 	if err != nil {

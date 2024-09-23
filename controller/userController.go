@@ -26,9 +26,7 @@ func (c *UserController) GetUser(w http.ResponseWriter, r *http.Request) {
 	user, err := c.service.GetUser(id)
 
 	if err != nil {
-		response.Json(w, http.StatusNotFound, map[string]any{
-			"message": err.Error(),
-		})
+		response.Json(w, err.HTTPStatus(), err.Details())
 		return
 	}
 
@@ -41,9 +39,7 @@ func (c *UserController) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	err := c.service.DeleteUser(id)
 
 	if err != nil {
-		response.Json(w, http.StatusNotFound, map[string]any{
-			"message": err.Error(),
-		})
+		response.Json(w, err.HTTPStatus(), err.Details())
 		return
 	}
 
@@ -60,9 +56,7 @@ func (c *UserController) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	user, err := c.service.UpdateUser(id, request)
 
 	if err != nil {
-		response.Json(w, http.StatusNotFound, map[string]any{
-			"message": err.Error(),
-		})
+		response.Json(w, err.HTTPStatus(), err.Details())
 		return
 	}
 
