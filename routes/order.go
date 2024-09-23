@@ -13,8 +13,8 @@ func OrderMux() http.Handler {
 
 	orderMux.Handle("/create", middleware.AuthMiddleware(http.HandlerFunc(controller.CreateOrder)))
 	orderMux.Handle("/orders", middleware.AuthMiddleware(http.HandlerFunc(controller.GetOrders)))
-	// orderMux.Handle("/delete", middleware.AuthMiddleware(http.HandlerFunc(handlers.DeleteOrder)))
-	// orderMux.Handle("/change-status", middleware.AuthMiddleware(http.HandlerFunc(handlers.ChangeStatus)))
+	orderMux.Handle("/delete", middleware.AuthMiddleware(http.HandlerFunc(controller.Delete)))
+	orderMux.Handle("/change-status", middleware.AuthMiddleware(http.HandlerFunc(controller.ChangeStatus)))
 
 	return orderMux
 }

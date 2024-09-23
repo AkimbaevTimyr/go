@@ -65,6 +65,39 @@ func (c *OrderController) CreateOrder(w http.ResponseWriter, r *http.Request) {
 	response.Json(w, http.StatusOK, resources.OrderResource(order))
 }
 
+func (c *OrderController) ChangeStatus(w http.ResponseWriter, r *http.Request) {
+	orderId, _ := strconv.Atoi(r.FormValue("id"))
+	status := r.FormValue("status")
+
+	err := c.service.ChangeStatus(orderId, status)
+
+	if err != nil {
+		response.Json(w, http.StatusNotFound, map[string]any{
+			"message": err.Error(),
+		})
+	}
+	response.Json(w, http.StatusOK, map[string]any{
+		"message": "status changed",
+	})
+}
+
+func (c *OrderController) Delete(w http.ResponseWriter, r *http.Request) {
+	id, _ := strconv.Atoi(r.FormValue("id"))
+
+	err := c.service.Delete(id)
+
+	if err != nil {
+		response.Json(w, http.StatusNotFound, map[string]string{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	response.Json(w, http.StatusOK, map[string]string{
+		"message": "Order deleted successfully",
+	})
+}
+
 func getQueryInt(q url.Values, key string, defaultValue int) int {
 	if value := q.Get(key); value != "" {
 		if num, err := strconv.Atoi(value); err == nil {

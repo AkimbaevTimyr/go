@@ -4,8 +4,6 @@ import (
 	"akimbaev/database"
 	"akimbaev/models"
 	"akimbaev/repository"
-	"fmt"
-	"log"
 )
 
 type OrderReportService interface {
@@ -13,35 +11,29 @@ type OrderReportService interface {
 }
 
 type orderReportService struct {
-	repo repository.OrderReportRepository
+	repo      repository.OrderReportRepository
+	orderRepo repository.OrderRepository
 }
 
-func NewOrderReportService(repo repository.OrderReportRepository) OrderReportService {
+func NewOrderReportService(repo repository.OrderReportRepository, orderRepo repository.OrderRepository) OrderReportService {
 	return &orderReportService{
-		repo: repo,
+		repo:      repo,
+		orderRepo: orderRepo,
 	}
 }
 
-func (repo *orderReportService) Connect(id int, userId uint) (*models.OrderReport, error) {
-	// tx := database.DB.Begin()
+// проверить
+func (s *orderReportService) Connect(id int, userId uint) (*models.OrderReport, error) {
 
-	var order models.Order
+	order, err := s.orderRepo.GetById(id)
 
-	result := database.DB.First(&models.Order{}, id).Error
-
-	if result != nil {
-		return nil, fmt.Errorf("order with id %d not found", id)
+	if err != nil {
+		return nil, err
 	}
 
-	//создание отчета
-	Report := models.OrderReport{
-		UserId:  userId,
-		OrderId: uint(id),
-	}
+	report, err := s.repo.Create(uint(id), userId)
 
-	if err := database.DB.Create(&Report).Error; err != nil {
-		// tx.Rollback()
-		log.Fatalln(err)
+	if err != nil {
 		return nil, err
 	}
 
@@ -50,13 +42,10 @@ func (repo *orderReportService) Connect(id int, userId uint) (*models.OrderRepor
 
 	order.User.Balance -= order.Price
 	if err := database.DB.Save(&order.User).Error; err != nil {
-		log.Fatalln(err, "123")
-		// tx.Rollback()
 		return nil, err
 	}
 
-	database.DB.Preload("Order").Find(&Report, Report.ID)
+	database.DB.Preload("Order").Find(&report, report.ID)
 
-	// tx.Commit()
-	return &Report, nil
+	return report, nil
 }

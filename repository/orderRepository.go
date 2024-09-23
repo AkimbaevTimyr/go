@@ -13,6 +13,8 @@ import (
 type OrderRepository interface {
 	GetUserOrders(id int, params order.IndexRequest) (*[]models.Order, error)
 	CreateOrder(id int, request requests.OrderRequest) (*models.Order, error)
+	GetById(id int) (*models.Order, error)
+	DeleteById(id int) error
 }
 
 type orderRepo struct{}
@@ -46,4 +48,30 @@ func (r *orderRepo) CreateOrder(id int, request requests.OrderRequest) (*models.
 	}
 
 	return &NewOrder, nil
+}
+
+func (r *orderRepo) GetById(id int) (*models.Order, error) {
+	var order models.Order
+
+	if err := database.DB.First(&order, id).Error; err != nil {
+		return nil, fmt.Errorf("order with id %d not found", id)
+	}
+	return &order, nil
+}
+
+func (r *orderRepo) DeleteById(id int) error {
+	if err := database.DB.Delete(&models.Order{}, id).Error; err != nil {
+		return fmt.Errorf("order with id %d not found", id)
+	}
+
+	result := database.DB.Delete(&models.Order{}, id)
+
+	if result.Error != nil {
+		return fmt.Errorf("internal server error")
+	}
+
+	if result.RowsAffected == 0 {
+		return fmt.Errorf("order with id %d not found", id)
+	}
+	return nil
 }

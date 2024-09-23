@@ -14,8 +14,9 @@ func InitUserController() *controller.UserController {
 }
 
 func InitOrderReportController() *controller.UserReportController {
-	repository := repository.NewOrderReportRepository()
-	service := service.NewOrderReportService(repository)
+	reportRepository := repository.NewOrderReportRepository()
+	orderRepository := repository.NewOrderRepository()
+	service := service.NewOrderReportService(reportRepository, orderRepository)
 	controller := controller.NewUserReportController(service)
 	return controller
 }

@@ -33,5 +33,8 @@ func (s *UserReportController) Connect(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response.Json(w, http.StatusOK, resources.ReportResource(report))
+	response.Json(w, http.StatusOK, map[string]any{
+		"message": "report created",
+		"report":  resources.ReportResource(report),
+	})
 }
