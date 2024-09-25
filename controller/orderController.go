@@ -28,10 +28,18 @@ func (c *OrderController) GetOrders(w http.ResponseWriter, r *http.Request) {
 	userClaims, _ := helpers.ExctractUserFromToken(r)
 
 	q := r.URL.Query()
+
 	params := order.IndexRequest{
 		Page:  getQueryInt(q, "page", 1),
 		Count: getQueryInt(q, "count", 10),
 		Sort:  q.Get("sort"),
+	}
+
+	msg, validErr := helpers.ValidateStruct(&params)
+
+	if validErr != nil {
+		response.Json(w, http.StatusBadRequest, msg)
+		return
 	}
 
 	orders, err := c.service.GetOrders(int(userClaims.UserID), params)
