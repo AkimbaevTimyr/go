@@ -17,6 +17,7 @@ func ValidateStruct(params interface{}) (map[string]any, error) {
 				"message": err.Field() + " " + err.Tag(),
 			})
 		}
+
 		return map[string]any{
 			"message": "validation error",
 			"errors":  msg,

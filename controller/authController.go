@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"akimbaev/helpers"
 	"akimbaev/requests"
 	"akimbaev/response"
 	"akimbaev/service"
@@ -18,10 +19,16 @@ func NewAuthController(svc service.AuthService) *AuthController {
 	}
 }
 
-// TODO сделать глобальную обработку ошибок
 func (c *AuthController) Login(w http.ResponseWriter, r *http.Request) {
 	request := requests.LoginRequest{}
 	json.NewDecoder(r.Body).Decode(&request)
+
+	msg, validErr := helpers.ValidateStruct(request)
+
+	if validErr != nil {
+		response.Json(w, http.StatusBadRequest, msg)
+		return
+	}
 
 	tokenString, err := c.service.Login(request)
 
@@ -39,6 +46,13 @@ func (c *AuthController) Register(w http.ResponseWriter, r *http.Request) {
 
 	json.NewDecoder(r.Body).Decode(&request)
 
+	msg, validErr := helpers.ValidateStruct(request)
+
+	if validErr != nil {
+		response.Json(w, http.StatusBadRequest, msg)
+		return
+	}
+
 	user, err := c.service.Register(request)
 
 	if err != nil {
@@ -52,6 +66,13 @@ func (c *AuthController) CheckCode(w http.ResponseWriter, r *http.Request) {
 	request := requests.CheckCodeRequest{}
 
 	json.NewDecoder(r.Body).Decode(&request)
+
+	msg, validErr := helpers.ValidateStruct(request)
+
+	if validErr != nil {
+		response.Json(w, http.StatusBadRequest, msg)
+		return
+	}
 
 	tokenString, err := c.service.CheckCode(request)
 

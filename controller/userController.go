@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"akimbaev/helpers"
 	"akimbaev/requests"
 	"akimbaev/resources"
 	"akimbaev/response"
@@ -52,6 +53,13 @@ func (c *UserController) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	id, _ := strconv.Atoi(r.FormValue("id"))
 	var request requests.UpdateUserRequest
 	json.NewDecoder(r.Body).Decode(&request)
+
+	msg, validErr := helpers.ValidateStruct(request)
+
+	if validErr != nil {
+		response.Json(w, http.StatusBadRequest, msg)
+		return
+	}
 
 	user, err := c.service.UpdateUser(id, request)
 

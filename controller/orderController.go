@@ -59,6 +59,13 @@ func (c *OrderController) CreateOrder(w http.ResponseWriter, r *http.Request) {
 
 	json.NewDecoder(r.Body).Decode(&request)
 
+	msg, validErr := helpers.ValidateStruct(request)
+
+	if validErr != nil {
+		response.Json(w, http.StatusBadRequest, msg)
+		return
+	}
+
 	order, err := c.service.CreateOrder(int(userClaims.UserID), request)
 
 	if err != nil {

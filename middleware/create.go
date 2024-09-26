@@ -4,6 +4,7 @@ import "net/http"
 
 type Middleware func(http.Handler) http.Handler
 
+// mw - передаем список мидлваров
 func CreateMiddleware(mw ...Middleware) func(http.Handler) http.Handler {
 	return func(hnd http.Handler) http.Handler {
 		next := hnd

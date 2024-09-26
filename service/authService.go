@@ -7,7 +7,10 @@ import (
 	"akimbaev/requests"
 	"errors"
 	"fmt"
+	"log"
 	"time"
+
+	"net/smtp"
 
 	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/exp/rand"
@@ -67,9 +70,11 @@ func (s *authService) Register(request requests.RegisterRequest) (*models.User, 
 	database.DB.Create(&NewUser)
 
 	generateCode(NewUser)
-	return &NewUser, nil
+	// code := generateCode(NewUser)
 
-	//логика по отправке кода юсеру на почту после регистрации
+	// go sendEmail(code)
+
+	return &NewUser, nil
 }
 
 func (s *authService) CheckCode(request requests.CheckCodeRequest) (string, *helpers.Error) {
@@ -111,4 +116,19 @@ func generateCode(user models.User) int {
 
 func clearCodes(user models.User) {
 	database.DB.Where("email = ?", user.Email).Delete(&models.VerificationCode{})
+}
+
+func sendEmail(code int) {
+	auth := smtp.PlainAuth("", "email", "password", "smtp.gmail.com")
+
+	// Connect to the server, authenticate, set the sender and recipient,
+	// and send the email all in one step.
+	to := []string{"vasya.pupkin@gmail.com"}
+	msg := []byte(fmt.Sprintf("Subject: Verification code\r\n\r\n%v", code))
+
+	err := smtp.SendMail("smtp.gmail.com", auth, "from.yourmother@sobaka.kz", to, msg)
+
+	if err != nil {
+		log.Fatal(err)
+	}
 }
