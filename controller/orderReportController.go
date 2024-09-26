@@ -64,3 +64,17 @@ func (s *UserReportController) MyReports(w http.ResponseWriter, r *http.Request)
 
 	response.Json(w, http.StatusOK, resources.ReportsResource(reports))
 }
+
+func (c *UserReportController) Show(w http.ResponseWriter, r *http.Request) {
+	id, _ := strconv.Atoi(r.URL.Query().Get("id"))
+
+	report, err := c.service.Show(id)
+
+	if err != nil {
+		response.Json(w, err.HTTPStatus(), err.Details())
+		return
+	}
+
+	response.Json(w, http.StatusOK, resources.ReportResource(report))
+
+}

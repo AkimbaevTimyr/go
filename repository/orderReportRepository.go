@@ -5,12 +5,15 @@ import (
 	"akimbaev/helpers"
 	"akimbaev/models"
 	report "akimbaev/requests/reports"
+	"errors"
+	"fmt"
 
 	"gorm.io/gorm"
 )
 
 type OrderReportRepository interface {
 	Create(orderId, userId uint) (*models.OrderReport, *helpers.Error)
+	GetById(id int) (*models.OrderReport, *helpers.Error)
 	GetReportsByUserId(userId uint, params report.IndexRequest) (*[]models.OrderReport, *helpers.Error)
 }
 
@@ -46,4 +49,17 @@ func (r *orderReportRepository) GetReportsByUserId(userId uint, params report.In
 
 	return &reports, nil
 
+}
+
+func (r *orderReportRepository) GetById(id int) (*models.OrderReport, *helpers.Error) {
+	var report models.OrderReport
+
+	if err := database.DB.Preload("Order").First(&report, id).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, &helpers.Error{Code: helpers.ENOTFOUND, Message: fmt.Sprintf("report with id %d not found", id)}
+		}
+		return nil, &helpers.Error{Code: helpers.EINTERNAL, Message: "internal server error"}
+	}
+
+	return &report, nil
 }

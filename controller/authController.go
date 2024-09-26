@@ -5,7 +5,6 @@ import (
 	"akimbaev/requests"
 	"akimbaev/response"
 	"akimbaev/service"
-	"encoding/json"
 	"net/http"
 )
 
@@ -21,7 +20,13 @@ func NewAuthController(svc service.AuthService) *AuthController {
 
 func (c *AuthController) Login(w http.ResponseWriter, r *http.Request) {
 	request := requests.LoginRequest{}
-	json.NewDecoder(r.Body).Decode(&request)
+
+	e := helpers.ReadJson(r, w, &request)
+
+	if e != nil {
+		response.Json(w, http.StatusBadRequest, helpers.INVALIDPAYLOAD)
+		return
+	}
 
 	msg, validErr := helpers.ValidateStruct(request)
 
@@ -44,7 +49,12 @@ func (c *AuthController) Login(w http.ResponseWriter, r *http.Request) {
 func (c *AuthController) Register(w http.ResponseWriter, r *http.Request) {
 	request := requests.RegisterRequest{}
 
-	json.NewDecoder(r.Body).Decode(&request)
+	e := helpers.ReadJson(r, w, &request)
+
+	if e != nil {
+		response.Json(w, http.StatusBadRequest, helpers.INVALIDPAYLOAD)
+		return
+	}
 
 	msg, validErr := helpers.ValidateStruct(request)
 
@@ -65,7 +75,11 @@ func (c *AuthController) Register(w http.ResponseWriter, r *http.Request) {
 func (c *AuthController) CheckCode(w http.ResponseWriter, r *http.Request) {
 	request := requests.CheckCodeRequest{}
 
-	json.NewDecoder(r.Body).Decode(&request)
+	e := helpers.ReadJson(r, w, &request)
+	if e != nil {
+		response.Json(w, http.StatusBadRequest, helpers.INVALIDPAYLOAD)
+		return
+	}
 
 	msg, validErr := helpers.ValidateStruct(request)
 

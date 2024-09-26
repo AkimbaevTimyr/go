@@ -11,6 +11,7 @@ import (
 type OrderReportService interface {
 	Connect(id int, userId uint) (*models.OrderReport, *helpers.Error)
 	MyReports(userId uint, params report.IndexRequest) (*[]models.OrderReport, *helpers.Error)
+	Show(id int) (*models.OrderReport, *helpers.Error)
 }
 
 type orderReportService struct {
@@ -59,4 +60,14 @@ func (s *orderReportService) MyReports(userId uint, params report.IndexRequest) 
 	}
 
 	return orders, nil
+}
+
+func (s *orderReportService) Show(id int) (*models.OrderReport, *helpers.Error) {
+	order, err := s.repo.GetById(id)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return order, nil
 }

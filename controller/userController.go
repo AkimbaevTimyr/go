@@ -6,7 +6,6 @@ import (
 	"akimbaev/resources"
 	"akimbaev/response"
 	"akimbaev/service"
-	"encoding/json"
 	"net/http"
 	"strconv"
 )
@@ -52,7 +51,12 @@ func (c *UserController) DeleteUser(w http.ResponseWriter, r *http.Request) {
 func (c *UserController) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	id, _ := strconv.Atoi(r.FormValue("id"))
 	var request requests.UpdateUserRequest
-	json.NewDecoder(r.Body).Decode(&request)
+
+	e := helpers.ReadJson(r, w, &request)
+
+	if e != nil {
+		response.Json(w, http.StatusBadRequest, helpers.INVALIDPAYLOAD)
+	}
 
 	msg, validErr := helpers.ValidateStruct(request)
 

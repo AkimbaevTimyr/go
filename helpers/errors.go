@@ -8,15 +8,17 @@ import (
 type errorCode string
 
 const (
-	ENOTFOUND    errorCode = "not_found"
-	EINTERNAL    errorCode = "internal server error"
-	UNAUTHORIZED errorCode = "unauthorized"
+	ENOTFOUND      errorCode = "not_found"
+	EINTERNAL      errorCode = "internal server error"
+	UNAUTHORIZED   errorCode = "unauthorized"
+	INVALIDPAYLOAD errorCode = "Invalid request payload"
 )
 
 var codeToHTTPStatusMap = map[errorCode]int{
-	ENOTFOUND:    http.StatusNotFound,
-	EINTERNAL:    http.StatusInternalServerError,
-	UNAUTHORIZED: http.StatusUnauthorized,
+	ENOTFOUND:      http.StatusNotFound,
+	EINTERNAL:      http.StatusInternalServerError,
+	UNAUTHORIZED:   http.StatusUnauthorized,
+	INVALIDPAYLOAD: http.StatusBadRequest,
 }
 
 type Error struct {
