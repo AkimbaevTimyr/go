@@ -5,10 +5,12 @@ import (
 	"akimbaev/helpers"
 	"akimbaev/models"
 	"akimbaev/repository"
+	report "akimbaev/requests/reports"
 )
 
 type OrderReportService interface {
 	Connect(id int, userId uint) (*models.OrderReport, *helpers.Error)
+	MyReports(userId uint, params report.IndexRequest) (*[]models.OrderReport, *helpers.Error)
 }
 
 type orderReportService struct {
@@ -47,4 +49,14 @@ func (s *orderReportService) Connect(id int, userId uint) (*models.OrderReport, 
 	database.DB.Preload("Order").Find(&report, report.ID)
 
 	return report, nil
+}
+
+func (s *orderReportService) MyReports(userId uint, params report.IndexRequest) (*[]models.OrderReport, *helpers.Error) {
+	orders, err := s.repo.GetReportsByUserId(userId, params)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return orders, nil
 }

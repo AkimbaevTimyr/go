@@ -6,12 +6,13 @@ import (
 )
 
 func AuthMux() http.Handler {
-	authMux := http.NewServeMux()
+	mux := http.NewServeMux()
 
-	authController := injection.InitAuthController()
+	c := injection.InitAuthController()
 
-	authMux.Handle("/login", http.HandlerFunc(authController.Login))
-	authMux.Handle("/register", http.HandlerFunc(authController.Register))
-	authMux.Handle("/checkCode", http.HandlerFunc(authController.CheckCode))
-	return authMux
+	mux.Handle("/login", http.HandlerFunc(c.Login))
+	mux.Handle("/register", http.HandlerFunc(c.Register))
+	mux.Handle("/checkCode", http.HandlerFunc(c.CheckCode))
+
+	return mux
 }

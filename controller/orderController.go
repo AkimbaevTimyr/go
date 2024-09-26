@@ -7,7 +7,6 @@ import (
 	"akimbaev/resources"
 	"akimbaev/response"
 	"akimbaev/service"
-	"encoding/json"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -57,7 +56,11 @@ func (c *OrderController) CreateOrder(w http.ResponseWriter, r *http.Request) {
 
 	var request requests.OrderRequest
 
-	json.NewDecoder(r.Body).Decode(&request)
+	e := helpers.ReadJson(r, w, &request)
+
+	if e != nil {
+		response.Json(w, http.StatusBadRequest, e.Error())
+	}
 
 	msg, validErr := helpers.ValidateStruct(request)
 

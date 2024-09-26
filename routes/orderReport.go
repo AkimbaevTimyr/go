@@ -7,10 +7,12 @@ import (
 )
 
 func OrderReportMux() http.Handler {
-	orderReportMux := http.NewServeMux()
+	mux := http.NewServeMux()
 
-	orderReportController := injection.InitOrderReportController()
-	orderReportMux.Handle("/connect", middleware.AuthMiddleware(http.HandlerFunc(orderReportController.Connect)))
+	c := injection.InitOrderReportController()
 
-	return orderReportMux
+	mux.Handle("/connect", middleware.AuthMiddleware(http.HandlerFunc(c.Connect)))
+	mux.Handle("/myReports", middleware.CreateMiddleware(middleware.AuthMiddleware)(http.HandlerFunc(c.MyReports)))
+
+	return mux
 }

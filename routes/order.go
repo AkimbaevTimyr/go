@@ -7,14 +7,14 @@ import (
 )
 
 func OrderMux() http.Handler {
-	orderMux := http.NewServeMux()
+	mux := http.NewServeMux()
 
-	controller := injection.InitOrderController()
+	c := injection.InitOrderController()
 
-	orderMux.Handle("/create", middleware.CreateMiddleware(middleware.AuthMiddleware, middleware.CheckAdmin)(http.HandlerFunc(controller.CreateOrder)))
-	orderMux.Handle("/orders", middleware.AuthMiddleware(http.HandlerFunc(controller.GetOrders)))
-	orderMux.Handle("/delete", middleware.AuthMiddleware(http.HandlerFunc(controller.Delete)))
-	orderMux.Handle("/change-status", middleware.CreateMiddleware(middleware.AuthMiddleware, middleware.CheckModerator)(http.HandlerFunc(controller.ChangeStatus)))
+	mux.Handle("/create", middleware.CreateMiddleware(middleware.AuthMiddleware, middleware.CheckAdmin)(http.HandlerFunc(c.CreateOrder)))
+	mux.Handle("/orders", middleware.AuthMiddleware(http.HandlerFunc(c.GetOrders)))
+	mux.Handle("/delete", middleware.AuthMiddleware(http.HandlerFunc(c.Delete)))
+	mux.Handle("/change-status", middleware.CreateMiddleware(middleware.AuthMiddleware, middleware.CheckModerator)(http.HandlerFunc(c.ChangeStatus)))
 
-	return orderMux
+	return mux
 }

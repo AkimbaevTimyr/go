@@ -7,13 +7,13 @@ import (
 )
 
 func UserMux() http.Handler {
-	userMux := http.NewServeMux()
+	mux := http.NewServeMux()
 
-	userController := injection.InitUserController()
+	c := injection.InitUserController()
 
-	userMux.Handle("/get", middleware.AuthMiddleware(http.HandlerFunc(userController.GetUser)))
-	userMux.Handle("/delete", middleware.AuthMiddleware(http.HandlerFunc(userController.DeleteUser)))
-	userMux.Handle("/update", middleware.AuthMiddleware(http.HandlerFunc(userController.UpdateUser)))
+	mux.Handle("/get", middleware.AuthMiddleware(http.HandlerFunc(c.GetUser)))
+	mux.Handle("/delete", middleware.AuthMiddleware(http.HandlerFunc(c.DeleteUser)))
+	mux.Handle("/update", middleware.AuthMiddleware(http.HandlerFunc(c.UpdateUser)))
 
-	return userMux
+	return mux
 }
