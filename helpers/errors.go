@@ -12,6 +12,7 @@ const (
 	EINTERNAL      errorCode = "internal server error"
 	UNAUTHORIZED   errorCode = "unauthorized"
 	INVALIDPAYLOAD errorCode = "Invalid request payload"
+	STATUSCONFLICT errorCode = "Status conflict"
 )
 
 var codeToHTTPStatusMap = map[errorCode]int{
@@ -19,6 +20,7 @@ var codeToHTTPStatusMap = map[errorCode]int{
 	EINTERNAL:      http.StatusInternalServerError,
 	UNAUTHORIZED:   http.StatusUnauthorized,
 	INVALIDPAYLOAD: http.StatusBadRequest,
+	STATUSCONFLICT: http.StatusConflict,
 }
 
 type Error struct {
@@ -61,8 +63,6 @@ func (e *Error) HTTPStatus() int {
 	return http.StatusInternalServerError
 }
 
-func (e *Error) Details() map[string]any {
-	return map[string]any{
-		"message": e.Message,
-	}
+func (e *Error) Details() Envelope {
+	return Envelope{"message": e.Message}
 }

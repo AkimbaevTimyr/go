@@ -67,7 +67,16 @@ func (s *authService) Register(request requests.RegisterRequest) (*models.User, 
 		Password: string(hashedPassword),
 	}
 
-	database.DB.Create(&NewUser)
+	r := helpers.ValidateEmail(NewUser.Email)
+	if !r {
+		return nil, &helpers.Error{Code: helpers.INVALIDPAYLOAD, Message: "invalid email address"}
+	}
+
+	res := database.DB.Create(&NewUser)
+
+	if res != nil {
+		return nil, &helpers.Error{Code: helpers.STATUSCONFLICT, Message: "user already exists"}
+	}
 
 	generateCode(NewUser)
 	// code := generateCode(NewUser)

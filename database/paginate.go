@@ -5,7 +5,6 @@ import (
 )
 
 func Paginate(db *gorm.DB, page int, sort string, count int) *gorm.DB {
-	// return func(db *gorm.DB, page int, sort string, count int) *gorm.DB {
 	if page <= 0 {
 		page = 1
 	}
@@ -18,5 +17,4 @@ func Paginate(db *gorm.DB, page int, sort string, count int) *gorm.DB {
 
 	offset := (page - 1) * count
 	return db.Offset(offset).Limit(count).Order("created_at " + sort)
-	// }
 }

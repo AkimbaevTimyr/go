@@ -19,15 +19,17 @@ func NewAuthController(svc service.AuthService) *AuthController {
 }
 
 func (c *AuthController) Login(w http.ResponseWriter, r *http.Request) {
+	//parse email & password and set to the login request struct
 	request := requests.LoginRequest{}
 
 	e := helpers.ReadJson(r, w, &request)
 
 	if e != nil {
-		response.Json(w, http.StatusBadRequest, helpers.INVALIDPAYLOAD)
+		response.Json(w, e.HTTPStatus(), e.Details())
 		return
 	}
 
+	//check struct to correct data
 	msg, validErr := helpers.ValidateStruct(request)
 
 	if validErr != nil {
@@ -35,15 +37,15 @@ func (c *AuthController) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	//check user in db & compare password & create token
 	tokenString, err := c.service.Login(request)
 
 	if err != nil {
 		response.Json(w, err.HTTPStatus(), err.Details())
 	}
 
-	response.Json(w, http.StatusOK, map[string]interface{}{
-		"token": tokenString,
-	})
+	//send user json data
+	response.Json(w, http.StatusCreated, helpers.Envelope{"token": tokenString})
 }
 
 func (c *AuthController) Register(w http.ResponseWriter, r *http.Request) {
@@ -52,7 +54,7 @@ func (c *AuthController) Register(w http.ResponseWriter, r *http.Request) {
 	e := helpers.ReadJson(r, w, &request)
 
 	if e != nil {
-		response.Json(w, http.StatusBadRequest, helpers.INVALIDPAYLOAD)
+		response.Json(w, e.HTTPStatus(), e.Details())
 		return
 	}
 
@@ -77,7 +79,7 @@ func (c *AuthController) CheckCode(w http.ResponseWriter, r *http.Request) {
 
 	e := helpers.ReadJson(r, w, &request)
 	if e != nil {
-		response.Json(w, http.StatusBadRequest, helpers.INVALIDPAYLOAD)
+		response.Json(w, e.HTTPStatus(), e.Details())
 		return
 	}
 
@@ -94,8 +96,5 @@ func (c *AuthController) CheckCode(w http.ResponseWriter, r *http.Request) {
 		response.Json(w, err.HTTPStatus(), err.Details())
 	}
 
-	response.Json(w, http.StatusOK, map[string]any{
-		"message": "auth confirmed",
-		"token":   tokenString,
-	})
+	response.Json(w, http.StatusOK, helpers.Envelope{"message": "auth confirmed", "token": tokenString})
 }

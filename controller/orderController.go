@@ -59,7 +59,7 @@ func (c *OrderController) CreateOrder(w http.ResponseWriter, r *http.Request) {
 	e := helpers.ReadJson(r, w, &request)
 
 	if e != nil {
-		response.Json(w, http.StatusBadRequest, e.Error())
+		response.Json(w, e.HTTPStatus(), e.Details())
 	}
 
 	msg, validErr := helpers.ValidateStruct(request)
@@ -88,9 +88,7 @@ func (c *OrderController) ChangeStatus(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		response.Json(w, err.HTTPStatus(), err.Details())
 	}
-	response.Json(w, http.StatusOK, map[string]any{
-		"message": "status changed",
-	})
+	response.Json(w, http.StatusOK, helpers.Envelope{"message": "status changed"})
 }
 
 func (c *OrderController) Delete(w http.ResponseWriter, r *http.Request) {
@@ -103,9 +101,7 @@ func (c *OrderController) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response.Json(w, http.StatusOK, map[string]string{
-		"message": "Order deleted successfully",
-	})
+	response.Json(w, http.StatusOK, helpers.Envelope{"message": "Order deleted successfully"})
 }
 
 func getQueryInt(q url.Values, key string, defaultValue int) int {

@@ -5,7 +5,9 @@ import (
 	"net/http"
 )
 
-func ReadJson(r *http.Request, w http.ResponseWriter, v interface{}) error {
+type Envelope map[string]interface{}
+
+func ReadJson(r *http.Request, w http.ResponseWriter, v interface{}) *Error {
 	//set request body to 1 mb to prevent any potential dos attacks
 	maxBytes := 1_048_576
 	r.Body = http.MaxBytesReader(w, r.Body, int64(maxBytes))
@@ -15,7 +17,7 @@ func ReadJson(r *http.Request, w http.ResponseWriter, v interface{}) error {
 	err := dec.Decode(v)
 
 	if err != nil {
-		return err
+		return &Error{Code: INVALIDPAYLOAD, Message: "invalid payload"}
 	}
 
 	return nil

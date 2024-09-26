@@ -43,9 +43,7 @@ func (c *UserController) DeleteUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response.Json(w, http.StatusOK, map[string]any{
-		"message": "User deleted",
-	})
+	response.Json(w, http.StatusOK, helpers.Envelope{"message": "User deleted"})
 }
 
 func (c *UserController) UpdateUser(w http.ResponseWriter, r *http.Request) {
@@ -55,7 +53,7 @@ func (c *UserController) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	e := helpers.ReadJson(r, w, &request)
 
 	if e != nil {
-		response.Json(w, http.StatusBadRequest, helpers.INVALIDPAYLOAD)
+		response.Json(w, e.HTTPStatus(), e.Details())
 	}
 
 	msg, validErr := helpers.ValidateStruct(request)
