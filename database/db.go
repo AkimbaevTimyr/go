@@ -45,5 +45,5 @@ func Init() {
 	//что-то сделать с этим запросом в бд
 	DB.Exec("CREATE TYPE order_status AS ENUM ('rejected', 'approved', 'moderation');")
 	DB.Exec("CREATE TYPE report_status AS ENUM ('rejected', 'approved', 'moderation');")
-	DB.AutoMigrate(&models.User{}, &models.VerificationCode{}, &models.Order{}, &models.OrderReport{})
+	DB.AutoMigrate(&models.User{}, &models.VerificationCode{}, &models.Order{}, &models.OrderReport{}, &models.Plan{}, &models.Subscription{})
 }
