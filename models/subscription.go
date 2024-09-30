@@ -16,3 +16,7 @@ type Subscription struct {
 	Plan      Plan      `gorm:"foreignKey:PlanId"`
 	IsActive  bool      `gorm:"default:true"`
 }
+
+func (s *Subscription) IsEmpty() bool {
+	return s.UserId == 0
+}

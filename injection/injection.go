@@ -33,3 +33,12 @@ func InitOrderController() *controller.OrderController {
 	controller := controller.NewOrderController(service)
 	return controller
 }
+
+func InitSubscriptionController() *controller.SubscriptionController {
+	subsRepo := repository.NewSubscriptionRepository()
+	planRepo := repository.NewPlanRepository()
+	userRepo := repository.NewUserRepository()
+	service := service.NewSubscriptionService(subsRepo, planRepo, userRepo)
+	controller := controller.NewSubscriptionController(service)
+	return controller
+}
