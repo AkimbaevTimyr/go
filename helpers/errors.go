@@ -14,6 +14,7 @@ const (
 	INVALIDPAYLOAD  errorCode = "Invalid request payload"
 	STATUSCONFLICT  errorCode = "Status conflict"
 	PAYMENTREQUIRED errorCode = "Payment required"
+	FORBIDDEN       errorCode = "Forbidden"
 )
 
 var codeToHTTPStatusMap = map[errorCode]int{
@@ -23,6 +24,7 @@ var codeToHTTPStatusMap = map[errorCode]int{
 	INVALIDPAYLOAD:  http.StatusBadRequest,
 	STATUSCONFLICT:  http.StatusConflict,
 	PAYMENTREQUIRED: http.StatusPaymentRequired,
+	FORBIDDEN:       http.StatusForbidden,
 }
 
 type Error struct {

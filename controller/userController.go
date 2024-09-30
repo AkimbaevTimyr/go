@@ -72,3 +72,25 @@ func (c *UserController) UpdateUser(w http.ResponseWriter, r *http.Request) {
 
 	response.Json(w, http.StatusOK, resources.UserResource(user))
 }
+
+// тестовая версия добавления баланса юсеру
+func (c *UserController) AddBalance(w http.ResponseWriter, r *http.Request) {
+	userClaims, _ := helpers.ExctractUserFromToken(r)
+
+	var request requests.AddBalanceRequest
+
+	helpers.ReadJson(r, w, &request)
+
+	msg, e := helpers.ValidateStruct(request)
+	if e != nil {
+		response.Json(w, http.StatusBadRequest, msg)
+	}
+
+	err := c.service.AddBalance(int(userClaims.UserID), request)
+	if err != nil {
+		response.Json(w, err.HTTPStatus(), err.Details())
+		return
+	}
+
+	response.Json(w, http.StatusOK, helpers.Envelope{"message": "balance added"})
+}
