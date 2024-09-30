@@ -13,24 +13,16 @@ func InitUserController() *controller.UserController {
 	return userController
 }
 
-func InitOrderReportController() *controller.UserReportController {
-	reportRepository := repository.NewOrderReportRepository()
-	orderRepository := repository.NewOrderRepository()
-	service := service.NewOrderReportService(reportRepository, orderRepository)
-	controller := controller.NewUserReportController(service)
-	return controller
-}
-
 func InitAuthController() *controller.AuthController {
 	service := service.NewAuthService()
 	controller := controller.NewAuthController(service)
 	return controller
 }
 
-func InitOrderController() *controller.OrderController {
-	repository := repository.NewOrderRepository()
-	service := service.NewOrderService(repository)
-	controller := controller.NewOrderController(service)
+func InitOrderController() *controller.PostController {
+	repository := repository.NewPostRepository()
+	service := service.NewPostService(repository)
+	controller := controller.NewPostController(service)
 	return controller
 }
 

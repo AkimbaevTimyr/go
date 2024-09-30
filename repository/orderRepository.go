@@ -4,72 +4,64 @@ import (
 	"akimbaev/database"
 	"akimbaev/helpers"
 	"akimbaev/models"
-	"akimbaev/requests"
 	"akimbaev/requests/order"
 	"fmt"
 
 	"gorm.io/gorm"
 )
 
-type OrderRepository interface {
-	GetUserOrders(id int, params order.IndexRequest) (*[]models.Order, *helpers.Error)
-	CreateOrder(id int, request requests.OrderRequest) (*models.Order, *helpers.Error)
-	GetById(id int) (*models.Order, *helpers.Error)
+type PostRepository interface {
+	GetUserOrders(id int, params order.IndexRequest) (*[]models.Post, *helpers.Error)
+	CreatePost(id int, request models.Post) (*models.Post, *helpers.Error)
+	GetById(id int) (*models.Post, *helpers.Error)
 	DeleteById(id int) *helpers.Error
 }
 
-type orderRepo struct{}
+type postRepo struct{}
 
-func NewOrderRepository() OrderRepository {
-	return &orderRepo{}
+func NewPostRepository() PostRepository {
+	return &postRepo{}
 }
 
-func (r *orderRepo) GetUserOrders(id int, params order.IndexRequest) (*[]models.Order, *helpers.Error) {
+func (r *postRepo) GetUserOrders(id int, params order.IndexRequest) (*[]models.Post, *helpers.Error) {
 
-	var orders []models.Order
+	var posts []models.Post
 
 	database.DB.Scopes(func(db *gorm.DB) *gorm.DB {
 		return database.Paginate(db, params.Page, params.Sort, params.Count)
-	}).Where("user_id = ?", id).Find(&orders)
+	}).Find(&posts)
 
-	return &orders, nil
+	return &posts, nil
 }
 
-func (r *orderRepo) CreateOrder(id int, request requests.OrderRequest) (*models.Order, *helpers.Error) {
+func (r *postRepo) CreatePost(id int, request models.Post) (*models.Post, *helpers.Error) {
 
-	NewOrder := models.Order{
-		Title:   request.Title,
-		Content: request.Content,
-		Price:   request.Price,
-		UserId:  uint(id),
-	}
-
-	if err := database.DB.Create(&NewOrder).Error; err != nil {
+	if err := database.DB.Create(&request).Error; err != nil {
 		return nil, &helpers.Error{Code: helpers.EINTERNAL, Message: "interval server error"}
 
 	}
 
-	return &NewOrder, nil
+	return &request, nil
 }
 
-func (r *orderRepo) GetById(id int) (*models.Order, *helpers.Error) {
-	var order models.Order
+func (r *postRepo) GetById(id int) (*models.Post, *helpers.Error) {
+	var post models.Post
 
-	if err := database.DB.First(&order, id).Error; err != nil {
-		return nil, &helpers.Error{Code: helpers.ENOTFOUND, Message: fmt.Sprintf("order with id %d not found", id)}
+	if err := database.DB.First(&post, id).Error; err != nil {
+		return nil, &helpers.Error{Code: helpers.ENOTFOUND, Message: fmt.Sprintf("post with id %d not found", id)}
 	}
-	return &order, nil
+	return &post, nil
 }
 
-func (r *orderRepo) DeleteById(id int) *helpers.Error {
-	result := database.DB.Delete(&models.Order{}, id)
+func (r *postRepo) DeleteById(id int) *helpers.Error {
+	result := database.DB.Delete(&models.Post{}, id)
 
 	if result.Error != nil {
 		return &helpers.Error{Code: helpers.EINTERNAL, Message: "interval server error"}
 	}
 
 	if result.RowsAffected == 0 {
-		return &helpers.Error{Code: helpers.ENOTFOUND, Message: fmt.Sprintf("order with id %d not found", id)}
+		return &helpers.Error{Code: helpers.ENOTFOUND, Message: fmt.Sprintf("post with id %d not found", id)}
 	}
 	return nil
 }

@@ -13,7 +13,7 @@ var secretKey = []byte("secret-key")
 
 func CreateToken(user models.User) (string, error) {
 	claims := models.UserClaims{
-		UserID: user.ID,
+		UserID: int(user.ID),
 		Email:  user.Email,
 		Role:   user.Role,
 		StandardClaims: jwt.StandardClaims{

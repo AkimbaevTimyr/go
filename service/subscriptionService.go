@@ -37,9 +37,7 @@ func NewSubscriptionService(repo repository.SubscriptionRepository, planRepo rep
 // 5 обновляем поле подписки у юсера в БД +
 // 6 создаем запись в редис
 func (s *subscriptionService) Purchase(id, userId int) *helpers.Error {
-	var subscription models.Subscription
 	plan, e := s.planRepo.GetById(id)
-
 	if e != nil {
 		return e
 	}
@@ -58,13 +56,9 @@ func (s *subscriptionService) Purchase(id, userId int) *helpers.Error {
 		tx.Rollback()
 	}()
 
-	if err := tx.Where("user_id = ? AND is_active = ?", userId, true).First(&subscription).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
-			log.Println("у юсера нету активной подписки")
-		}
-	}
+	sub, e := GetUserSubscription(userId)
 
-	if !subscription.IsEmpty() {
+	if !sub.IsEmpty() {
 		tx.Rollback()
 		return &helpers.Error{Code: helpers.PAYMENTREQUIRED, Message: "user have active subscription"}
 	}
@@ -103,5 +97,32 @@ func (s *subscriptionService) Purchase(id, userId int) *helpers.Error {
 
 	// логика по отправке смс на email юсера о покупке подписки
 
+	return nil
+}
+
+func GetUserSubscription(userId int) (*models.Subscription, *helpers.Error) {
+	var subscription models.Subscription
+
+	if err := database.DB.Where("user_id = ? AND is_active = ?", userId, true).First(&subscription).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			log.Println("у юсера нету активной подписки")
+		}
+	}
+
+	return &subscription, nil
+}
+
+func CacheSubStatusAndUserId(subscription *models.Subscription, userId int) *helpers.Error {
+	if !subscription.IsEmpty() {
+		e := database.RedisInstance.Set(fmt.Sprintf("%v", userId), true, 60*time.Minute)
+		if e != nil {
+			return &helpers.Error{Code: helpers.EINTERNAL, Message: "internal server error"}
+		}
+	} else {
+		e := database.RedisInstance.Set(fmt.Sprintf("%v", userId), false, 60*time.Minute)
+		if e != nil {
+			return &helpers.Error{Code: helpers.EINTERNAL, Message: "internal server error"}
+		}
+	}
 	return nil
 }

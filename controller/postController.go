@@ -2,7 +2,7 @@ package controller
 
 import (
 	"akimbaev/helpers"
-	"akimbaev/requests"
+	"akimbaev/models"
 	"akimbaev/requests/order"
 	"akimbaev/resources"
 	"akimbaev/response"
@@ -12,18 +12,18 @@ import (
 	"strconv"
 )
 
-type OrderController struct {
-	service service.OrderService
+type PostController struct {
+	service service.PostService
 }
 
-func NewOrderController(service service.OrderService) *OrderController {
-	return &OrderController{
+func NewPostController(service service.PostService) *PostController {
+	return &PostController{
 		service: service,
 	}
 }
 
 // r - page - count - sort
-func (c *OrderController) GetOrders(w http.ResponseWriter, r *http.Request) {
+func (c *PostController) GetPosts(w http.ResponseWriter, r *http.Request) {
 	userClaims, _ := helpers.ExctractUserFromToken(r)
 
 	q := r.URL.Query()
@@ -41,20 +41,20 @@ func (c *OrderController) GetOrders(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	orders, err := c.service.GetOrders(int(userClaims.UserID), params)
+	posts, err := c.service.GetPosts(int(userClaims.UserID), params)
 
 	if err != nil {
 		response.Json(w, err.HTTPStatus(), err.Details())
 		return
 	}
 
-	response.Json(w, http.StatusOK, resources.OrdersResource(orders))
+	response.Json(w, http.StatusOK, resources.PostsResource(posts))
 }
 
-func (c *OrderController) CreateOrder(w http.ResponseWriter, r *http.Request) {
+func (c *PostController) CreatePost(w http.ResponseWriter, r *http.Request) {
 	userClaims, _ := helpers.ExctractUserFromToken(r)
 
-	var request requests.OrderRequest
+	var request models.Post
 
 	e := helpers.ReadJson(r, w, &request)
 
@@ -69,29 +69,17 @@ func (c *OrderController) CreateOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	order, err := c.service.CreateOrder(int(userClaims.UserID), request)
+	post, err := c.service.CreatePost(int(userClaims.UserID), request)
 
 	if err != nil {
 		response.Json(w, err.HTTPStatus(), err.Details())
 		return
 	}
 
-	response.Json(w, http.StatusOK, resources.OrderResource(order))
+	response.Json(w, http.StatusOK, resources.PostResource(post))
 }
 
-func (c *OrderController) ChangeStatus(w http.ResponseWriter, r *http.Request) {
-	orderId, _ := strconv.Atoi(r.FormValue("id"))
-	status := r.FormValue("status")
-
-	err := c.service.ChangeStatus(orderId, status)
-
-	if err != nil {
-		response.Json(w, err.HTTPStatus(), err.Details())
-	}
-	response.Json(w, http.StatusOK, helpers.Envelope{"message": "status changed"})
-}
-
-func (c *OrderController) Delete(w http.ResponseWriter, r *http.Request) {
+func (c *PostController) Delete(w http.ResponseWriter, r *http.Request) {
 	id, _ := strconv.Atoi(r.FormValue("id"))
 
 	err := c.service.Delete(id)
@@ -101,7 +89,7 @@ func (c *OrderController) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response.Json(w, http.StatusOK, helpers.Envelope{"message": "Order deleted successfully"})
+	response.Json(w, http.StatusOK, helpers.Envelope{"message": "Post deleted successfully"})
 }
 
 func getQueryInt(q url.Values, key string, defaultValue int) int {

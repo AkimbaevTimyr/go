@@ -32,11 +32,17 @@ func NewAuthService() AuthService {
 
 func (s *authService) Login(request requests.LoginRequest) (string, *helpers.Error) {
 	User := models.User{}
-
 	result := database.DB.First(&User, "email = ?", request.Email)
 
 	if result.Error != nil {
 		return "", &helpers.Error{Code: helpers.ENOTFOUND, Message: fmt.Sprintf("user with email %s not found", request.Email)}
+	}
+
+	sub, _ := GetUserSubscription(int(User.ID))
+	e := CacheSubStatusAndUserId(sub, int(User.ID))
+
+	if e != nil {
+		return "", e
 	}
 
 	err := bcrypt.CompareHashAndPassword([]byte(User.Password), []byte(request.Password))
