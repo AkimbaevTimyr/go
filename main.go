@@ -9,6 +9,7 @@ import (
 
 func main() {
 	database.Init()
+	database.RedisInit()
 	api := http.NewServeMux()
 	api.Handle("/api/v1/user/", http.StripPrefix("/api/v1/user", routes.UserMux()))
 	api.Handle("/api/v1/auth/", http.StripPrefix("/api/v1/auth", routes.AuthMux()))
@@ -19,5 +20,3 @@ func main() {
 
 	http.ListenAndServe(":8080", api)
 }
-
-//bla
