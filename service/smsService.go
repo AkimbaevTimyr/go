@@ -35,7 +35,7 @@ func SendSms(code int) {
 		fmt.Println(err)
 		return
 	}
-	req.Header.Add("Authorization", "App 00b24d024bfa792529935c4281ab6aca-2b8539f4-34f2-4277-b545-e48eb4c66b4f")
+	req.Header.Add("Authorization", "your api key")
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Accept", "application/json")
 
