@@ -7,10 +7,7 @@ import (
 	"akimbaev/requests"
 	"errors"
 	"fmt"
-	"log"
 	"time"
-
-	"net/smtp"
 
 	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/exp/rand"
@@ -78,16 +75,15 @@ func (s *authService) Register(request requests.RegisterRequest) (*models.User, 
 		return nil, &helpers.Error{Code: helpers.INVALIDPAYLOAD, Message: "invalid email address"}
 	}
 
-	res := database.DB.Create(&NewUser)
+	res := database.DB.Create(&NewUser).Error
 
 	if res != nil {
-		return nil, &helpers.Error{Code: helpers.STATUSCONFLICT, Message: "user already exists"}
+		return nil, &helpers.Error{Code: helpers.STATUSCONFLICT, Message: res.Error()}
 	}
 
-	generateCode(NewUser)
-	// code := generateCode(NewUser)
+	code := generateCode(NewUser)
 
-	// go sendEmail(code)
+	go SendSms(code)
 
 	return &NewUser, nil
 }
@@ -131,19 +127,4 @@ func generateCode(user models.User) int {
 
 func clearCodes(user models.User) {
 	database.DB.Where("email = ?", user.Email).Delete(&models.VerificationCode{})
-}
-
-func sendEmail(code int) {
-	auth := smtp.PlainAuth("", "email", "password", "smtp.gmail.com")
-
-	// Connect to the server, authenticate, set the sender and recipient,
-	// and send the email all in one step.
-	to := []string{"vasya.pupkin@gmail.com"}
-	msg := []byte(fmt.Sprintf("Subject: Verification code\r\n\r\n%v", code))
-
-	err := smtp.SendMail("smtp.gmail.com", auth, "from.yourmother@sobaka.kz", to, msg)
-
-	if err != nil {
-		log.Fatal(err)
-	}
 }
