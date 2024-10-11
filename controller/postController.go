@@ -29,8 +29,8 @@ func (c *PostController) GetPosts(w http.ResponseWriter, r *http.Request) {
 	q := r.URL.Query()
 
 	params := order.IndexRequest{
-		Page:  getQueryInt(q, "page", 1),
-		Count: getQueryInt(q, "count", 10),
+		Page:  getQueryInt(q, "page"),
+		Count: getQueryInt(q, "count"),
 		Sort:  q.Get("sort"),
 	}
 
@@ -92,11 +92,11 @@ func (c *PostController) Delete(w http.ResponseWriter, r *http.Request) {
 	response.Json(w, http.StatusOK, helpers.Envelope{"message": "Post deleted successfully"})
 }
 
-func getQueryInt(q url.Values, key string, defaultValue int) int {
+func getQueryInt(q url.Values, key string) int {
 	if value := q.Get(key); value != "" {
 		if num, err := strconv.Atoi(value); err == nil {
 			return num
 		}
 	}
-	return defaultValue
+	return 1
 }

@@ -12,6 +12,8 @@ func PostResource(model *models.Post) map[string]any {
 		"description": model.Description,
 		"media":       model.Media,
 		"planId":      model.PlanId,
+		"categoryId":  model.CategoryId,
+		"category":    Category(&model.Category),
 		"created_at":  model.CreatedAt.Format(time.ANSIC),
 		"updated_at":  model.UpdatedAt.Format(time.ANSIC),
 	}
