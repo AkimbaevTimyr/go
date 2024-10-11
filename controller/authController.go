@@ -42,9 +42,13 @@ func (c *AuthController) Login(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		response.Json(w, err.HTTPStatus(), err.Details())
+		return
 	}
 
-	//send user json data
+	//send user json data & cookie
+	cookie := http.Cookie{Name: "token", Value: tokenString, HttpOnly: true, Secure: false}
+	http.SetCookie(w, &cookie)
+
 	response.Json(w, http.StatusCreated, helpers.Envelope{"token": tokenString})
 }
 
