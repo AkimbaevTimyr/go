@@ -34,3 +34,10 @@ func InitSubscriptionController() *controller.SubscriptionController {
 	controller := controller.NewSubscriptionController(service)
 	return controller
 }
+
+func InitCategoryController() *controller.Category {
+	r := repository.NewCategoryRepository()
+	s := service.NewCategoryService(r)
+	c := controller.NewCategoryController(s)
+	return c
+}
